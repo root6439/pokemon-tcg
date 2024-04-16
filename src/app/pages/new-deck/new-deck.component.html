@@ -1,5 +1,12 @@
 <div class="grid grid-cols-4 gap-4">
   @for (card of cards$ | async; track card.id) {
-  <card [name]="card.name" [imageUrl]="card.images.small" />
+  <card [name]="card.name" [imageUrl]="card.images.small" (click)="addCard(card)" />
   }
+
+  <mat-form-field >
+    <mat-label>Nome do deck</mat-label>
+    <input matInput type="text" [formControl]="nameControl" />
+    <mat-error>Campo obrigatório</mat-error>
+  </mat-form-field>
+  <button mat-flat-button color="primary" (click)="createDeck()" [disabled]="nameControl.invalid">Finalizar deck</button>
 </div>

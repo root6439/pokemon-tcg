@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { Card } from 'pokemon-tcg-sdk-typescript/dist/sdk';
 
 @Component({
   selector: 'deck',
@@ -13,4 +14,7 @@ export class DeckComponent {
 
   @Input()
   name: string;
+
+  @Input()
+  cards: Card[] = [];
 }

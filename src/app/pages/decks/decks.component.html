@@ -1,9 +1,9 @@
 <div>
-  <button routerLink="new-deck">Criar baralho</button>
+  <button mat-flat-button color="primary" routerLink="new-deck">Novo baralho</button>
 </div>
 
 <div class="grid grid-cols-4 gap-4">
-  @for (deck of decks; track deck.id) {
-  <deck [id]="deck.id" [name]="deck.name" />
+  @for (deck of decks$ | async; track deck.id) {
+  <deck [id]="deck.id" [name]="deck.name" [cards]="deck.cards" />
   }
 </div>
