@@ -1,1 +1,7 @@
-<div class="deck">{{ id }} - {{ name }} - {{ cards.length }}</div>
+<div class="deck">
+  <p>{{ id }} - {{ name }} - {{ cards.length }}</p>
+
+  <button mat-icon-button (click)="removeDeck()">
+    <mat-icon>delete</mat-icon>
+  </button>
+</div>
