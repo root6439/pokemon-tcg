@@ -1,3 +1,4 @@
 <div class="pokemon-card" [ngClass]="{ 'card-selected': selected }">
   <img [src]="imageUrl" [alt]="name + ' card'" />
+  <img src="./assets/icons/check.svg" alt="Check icon" class="check-icon" *ngIf="selected" />
 </div>

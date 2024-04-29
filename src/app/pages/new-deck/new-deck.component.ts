@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../../components/card/card.component';
@@ -13,6 +13,9 @@ import { AppState } from '../../shared/store/app-state';
 import { cards } from '../../shared/store/card/card-selectors';
 import { ICard } from '../../shared/models/Card';
 import { Card } from 'pokemon-tcg-sdk-typescript/dist/sdk';
+import { ActivatedRoute } from '@angular/router';
+import { selectDeckById } from '../../shared/store/deck/deck-selectors';
+import { Deck } from '../../shared/models/Deck';
 
 @Component({
   selector: 'app-new-deck',
@@ -21,10 +24,12 @@ import { Card } from 'pokemon-tcg-sdk-typescript/dist/sdk';
   templateUrl: './new-deck.component.html',
   styleUrl: './new-deck.component.scss',
 })
-export class NewDeckComponent implements OnInit {
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+export class NewDeckComponent implements OnInit, AfterViewInit {
+  constructor(private store: Store<AppState>, private fb: FormBuilder, private route: ActivatedRoute) {
     this.cards$ = this.store.select(cards);
   }
+
+  deckToEdit: Deck;
 
   cards$: Observable<ICard[]>;
 
@@ -33,18 +38,39 @@ export class NewDeckComponent implements OnInit {
     cards: this.fb.array([]),
   });
 
+  deckId = false;
+
   ngOnInit(): void {
     this.store.dispatch(loadCards());
-    this.cards$.subscribe((value) => console.log(value));
   }
 
-  addCard(card: ICard) {
-    this.formSelectedCards.push(new FormControl(card));
+  ngAfterViewInit(): void {
+    this.verifyEditPage();
+  }
+
+  verifyEditPage() {
+    const deckId = this.route.snapshot.params['id'];
+
+    if (deckId) {
+      this.store.select(selectDeckById(deckId)).subscribe((deck) => {
+        this.deckForm.get('name').setValue(deck.name);
+        const controls = deck.cards.map((value) => this.fb.control(value));
+        controls.forEach((value) => this.formSelectedCards.push(value));
+        this.deckToEdit = deck;
+      });
+    }
+  }
+
+  handleClickCard(card: ICard) {
+    const index = this.formSelectedCards.value.findIndex((value: Card) => value.id == card.id);
+    if (index == -1) {
+      this.formSelectedCards.push(new FormControl(card));
+    } else {
+      this.formSelectedCards.removeAt(index);
+    }
   }
 
   createDeck() {
-    console.log(this.deckForm.value);
-
     // tentei usar {...this.deckForm.value} para passar meus dados para a action porém está dando erro de tipagem
     // como o prazo está apertado, passarei os valores manualmente e num momento posterior farei uma refatoração dessa parte
     this.store.dispatch(addDeck({ name: this.deckForm.get('name').value, cards: this.formSelectedCards.value }));

@@ -1,7 +1,12 @@
 <div class="deck">
-  <p>{{ id }} - {{ name }} - {{ cards.length }}</p>
+  <p><strong>Id: </strong> {{ id }}</p>
+  <p><strong>Nome: </strong> {{ name }}</p>
+  <p><strong>N° de cartas: </strong> {{ cards.length }}</p>
 
-  <button mat-icon-button (click)="removeDeck()">
+  <button mat-icon-button color="primary" [routerLink]="['edit-deck', id]">
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button mat-icon-button (click)="removeDeck()" color="warn">
     <mat-icon>delete</mat-icon>
   </button>
 </div>

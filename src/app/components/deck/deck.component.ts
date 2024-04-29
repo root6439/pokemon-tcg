@@ -4,11 +4,12 @@ import { Card } from 'pokemon-tcg-sdk-typescript/dist/sdk';
 import { MatIconModule } from '@angular/material/icon';
 import { Store } from '@ngrx/store';
 import { removeDeck } from '../../shared/store/deck/deck-actions';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'deck',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, RouterModule],
   templateUrl: './deck.component.html',
   styleUrl: './deck.component.scss',
 })

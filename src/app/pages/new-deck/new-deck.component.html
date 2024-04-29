@@ -1,7 +1,7 @@
 <form [formGroup]="deckForm" (ngSubmit)="createDeck()">
   <div class="grid grid-cols-4 gap-4">
     @for (card of cards$ | async; track card.id) {
-    <card [name]="card.name" [imageUrl]="card.images.small" (click)="addCard(card)" [selected]="getCardSelected(card.id)" />
+    <card [name]="card.name" [imageUrl]="card.images.small" (click)="handleClickCard(card)" [selected]="getCardSelected(card.id)" />
     }
 
     <mat-form-field>
