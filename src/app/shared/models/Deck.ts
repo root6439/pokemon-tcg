@@ -1,7 +1,7 @@
-import { Card } from "pokemon-tcg-sdk-typescript/dist/sdk";
+import { ICard } from "./Card";
 
 export class Deck {
     id: number;
     name: string;
-    cards?: Card[];
+    cards?: ICard[];
 }

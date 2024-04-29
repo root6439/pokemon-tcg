@@ -1,7 +1,7 @@
-import { Card } from 'pokemon-tcg-sdk-typescript/dist/sdk';
+import { ICard } from './Card';
 
 export class CardResponse {
-  data: Card[];
+  data: ICard[];
   page: number;
   pageSize: number;
   count: number;

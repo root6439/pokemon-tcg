@@ -13,7 +13,10 @@ export class CardEffects {
       ofType(loadCards),
       mergeMap(() =>
         this.cardService.searchCards().pipe(
-          map((cards) => loadCardsSuccess({ cards })),
+          map((cards) => {
+            cards.forEach(value => value.selected = false);
+            return loadCardsSuccess({ cards });
+          }),
           catchError((error) => of(loadCardsError({ error })))
         )
       )

@@ -1,7 +1,7 @@
-import { Card } from "pokemon-tcg-sdk-typescript/dist/sdk";
+import { ICard } from "../../models/Card";
 
 export interface ICardState {
-    cards: Card[];
+    cards: ICard[];
     loading: boolean;
     error: unknown;
 }
