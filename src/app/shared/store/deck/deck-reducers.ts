@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { DeckState } from './deck-state';
-import { addDeck, removeDeck } from './deck-actions';
+import { addDeck, removeDeck, updateDeck } from './deck-actions';
 
 const initialState: DeckState = {
   decks: [],
@@ -15,5 +15,15 @@ export const deckReducer = createReducer(
   on(removeDeck, (state, { id }) => ({
     ...state,
     decks: state.decks.filter((value) => value.id != id),
-  }))
+  })),
+  on(updateDeck, (state, { id, name, cards }) => {
+    const decks = state.decks.map((deck) => {
+      if (deck.id == id) {
+        return { id, name, cards };
+      }
+      return deck;
+    });
+
+    return { ...state, decks };
+  })
 );

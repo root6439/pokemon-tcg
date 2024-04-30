@@ -1,14 +1,14 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../../components/card/card.component';
 import { Store } from '@ngrx/store';
-import { addDeck } from '../../shared/store/deck/deck-actions';
+import { addDeck, updateDeck } from '../../shared/store/deck/deck-actions';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { loadCards, selectCard } from '../../shared/store/card/card-actions';
+import { loadCards } from '../../shared/store/card/card-actions';
 import { AppState } from '../../shared/store/app-state';
 import { cards } from '../../shared/store/card/card-selectors';
 import { ICard } from '../../shared/models/Card';
@@ -29,8 +29,6 @@ export class NewDeckComponent implements OnInit, AfterViewInit {
     this.cards$ = this.store.select(cards);
   }
 
-  deckToEdit: Deck;
-
   cards$: Observable<ICard[]>;
 
   deckForm = this.fb.group({
@@ -38,7 +36,7 @@ export class NewDeckComponent implements OnInit, AfterViewInit {
     cards: this.fb.array([]),
   });
 
-  deckId = false;
+  deckId: number;
 
   ngOnInit(): void {
     this.store.dispatch(loadCards());
@@ -49,15 +47,17 @@ export class NewDeckComponent implements OnInit, AfterViewInit {
   }
 
   verifyEditPage() {
-    const deckId = this.route.snapshot.params['id'];
+    this.deckId = this.route.snapshot.params['id'];
 
-    if (deckId) {
-      this.store.select(selectDeckById(deckId)).subscribe((deck) => {
-        this.deckForm.get('name').setValue(deck.name);
-        const controls = deck.cards.map((value) => this.fb.control(value));
-        controls.forEach((value) => this.formSelectedCards.push(value));
-        this.deckToEdit = deck;
-      });
+    if (this.deckId) {
+      this.store
+        .select(selectDeckById(this.deckId))
+        .pipe(take(1))
+        .subscribe((deck) => {
+          this.deckForm.get('name').setValue(deck.name);
+          const controls = deck.cards.map((value) => this.fb.control(value));
+          controls.forEach((value) => this.formSelectedCards.push(value));
+        });
     }
   }
 
@@ -73,7 +73,11 @@ export class NewDeckComponent implements OnInit, AfterViewInit {
   createDeck() {
     // tentei usar {...this.deckForm.value} para passar meus dados para a action porém está dando erro de tipagem
     // como o prazo está apertado, passarei os valores manualmente e num momento posterior farei uma refatoração dessa parte
-    this.store.dispatch(addDeck({ name: this.deckForm.get('name').value, cards: this.formSelectedCards.value }));
+    if (this.deckId) {
+      this.store.dispatch(updateDeck({ id: this.deckId, name: this.deckForm.get('name').value, cards: this.formSelectedCards.value }));
+    } else {
+      this.store.dispatch(addDeck({ name: this.deckForm.get('name').value, cards: this.formSelectedCards.value }));
+    }
   }
 
   get formSelectedCards(): FormArray {
