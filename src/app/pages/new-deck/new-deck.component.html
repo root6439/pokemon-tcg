@@ -1,14 +1,17 @@
 <form [formGroup]="deckForm" (ngSubmit)="createDeck()">
-  <div class="grid grid-cols-4 gap-4">
-    @for (card of cards$ | async; track card.id) {
+  <mat-form-field>
+    <mat-label>Nome do deck</mat-label>
+    <input matInput type="text" formControlName="name" />
+    <mat-error>Campo obrigatório</mat-error>
+  </mat-form-field>
+
+  <button mat-flat-button color="primary" type="submit" [disabled]="this.deckForm.invalid">Finalizar deck</button>
+
+  <div class="grid grid-cols-4 gap-4 cards" id="cardsDiv">
+    @for (card of cardState.cards; track card.id) {
     <card [name]="card.name" [imageUrl]="card.images.small" (click)="handleClickCard(card)" [selected]="getCardSelected(card.id)" />
     }
 
-    <mat-form-field>
-      <mat-label>Nome do deck</mat-label>
-      <input matInput type="text" formControlName="name" />
-      <mat-error>Campo obrigatório</mat-error>
-    </mat-form-field>
-    <button mat-flat-button color="primary" type="submit" [disabled]="this.deckForm.invalid">Finalizar deck</button>
+    <loading [show]="cardState.loading" />
   </div>
 </form>

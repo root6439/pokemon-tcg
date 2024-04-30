@@ -13,7 +13,7 @@ export class CardService {
 
   getCards() {}
 
-  searchCards(query: string = '', page: number = 1, pageSize: number = 8) {
+  searchCards(query: string = '', page: number = 1, pageSize: number = 12) {
     const params = new HttpParams({ fromObject: { q: query, page, pageSize } });
     return this.http.get<CardResponse>(this.serverUrl, { params: params }).pipe(map((value) => value.data));
   }

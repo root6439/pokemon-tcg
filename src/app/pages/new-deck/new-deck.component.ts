@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { Observable, take } from 'rxjs';
+import { Subscription, debounceTime, fromEvent, take } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../../components/card/card.component';
 import { Store } from '@ngrx/store';
@@ -10,26 +10,26 @@ import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } 
 import { MatButtonModule } from '@angular/material/button';
 import { loadCards } from '../../shared/store/card/card-actions';
 import { AppState } from '../../shared/store/app-state';
-import { cards } from '../../shared/store/card/card-selectors';
 import { ICard } from '../../shared/models/Card';
 import { Card } from 'pokemon-tcg-sdk-typescript/dist/sdk';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { selectDeckById } from '../../shared/store/deck/deck-selectors';
-import { Deck } from '../../shared/models/Deck';
+import { ICardState } from '../../shared/store/card/card-state';
+import { LoadingComponent } from '../../components/loading/loading.component';
 
 @Component({
   selector: 'app-new-deck',
   standalone: true,
-  imports: [CommonModule, CardComponent, MatInputModule, MatFormFieldModule, ReactiveFormsModule, MatButtonModule],
+  imports: [CommonModule, CardComponent, MatInputModule, MatFormFieldModule, ReactiveFormsModule, MatButtonModule, LoadingComponent],
   templateUrl: './new-deck.component.html',
   styleUrl: './new-deck.component.scss',
 })
 export class NewDeckComponent implements OnInit, AfterViewInit {
-  constructor(private store: Store<AppState>, private fb: FormBuilder, private route: ActivatedRoute) {
-    this.cards$ = this.store.select(cards);
+  constructor(private store: Store<AppState>, private fb: FormBuilder, private route: ActivatedRoute, private router: Router) {
+    this.store.select((state) => state.cardsState).subscribe((value) => (this.cardState = value));
   }
 
-  cards$: Observable<ICard[]>;
+  cardState: ICardState;
 
   deckForm = this.fb.group({
     name: ['', Validators.required],
@@ -37,6 +37,7 @@ export class NewDeckComponent implements OnInit, AfterViewInit {
   });
 
   deckId: number;
+  scrollSubscription: Subscription;
 
   ngOnInit(): void {
     this.store.dispatch(loadCards());
@@ -44,6 +45,11 @@ export class NewDeckComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.verifyEditPage();
+
+    const div = document.getElementById('cardsDiv') as HTMLDivElement;
+    this.scrollSubscription = fromEvent(div, 'scroll')
+      .pipe(debounceTime(500)) // Tempo de debounce de 200ms
+      .subscribe(() => this.onScroll(div));
   }
 
   verifyEditPage() {
@@ -78,6 +84,7 @@ export class NewDeckComponent implements OnInit, AfterViewInit {
     } else {
       this.store.dispatch(addDeck({ name: this.deckForm.get('name').value, cards: this.formSelectedCards.value }));
     }
+    this.router.navigateByUrl('/');
   }
 
   get formSelectedCards(): FormArray {
@@ -86,5 +93,16 @@ export class NewDeckComponent implements OnInit, AfterViewInit {
 
   getCardSelected(id: string): boolean {
     return (this.formSelectedCards.value as Card[]).some((card) => card.id == id);
+  }
+
+  onScroll(element: HTMLDivElement) {
+    const scrollPosition = element.scrollTop;
+    const elementHeight = element.clientHeight;
+    const scrollHeight = element.scrollHeight;
+
+    if (scrollPosition + elementHeight >= scrollHeight) {
+      // load more cards
+      // this.store.dispatch()
+    }
   }
 }
